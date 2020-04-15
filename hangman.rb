@@ -22,6 +22,7 @@ class Game
 		@guessed_chars = []
 		@won = false
 		@this_game_number = rand 5
+		@save_game = false
 	end
 
 	def pick_random_word
@@ -147,6 +148,7 @@ class Game
 				if File.exists?("#{directory}/saved_game_#{game_to_load}.txt") # If the file exists then the game is loaded by substituting the inpit into the string
 					valid_game = true
 					load_game(game_to_load)
+					@save_game = false
 				else
 					puts "That isn't a valid game file! Try inputting a different game number:"
 				end
@@ -163,16 +165,29 @@ class Game
 			display_guessed_chars
 			print "\n"
 			print "\n"
+
+			puts "Would you like to save your game and play another time? Type (Y) to save."
+			choice = gets.chomp
+			choice.downcase!
+			if choice == "y"
+				@save_game = true
+				break # Breaks out of the current loop
+			end
+			
+			puts
 			turn
 			check_won 
 		end
 		
-		if @won == true
-			puts "You won! The word was #{@the_word}! Well done!"
+		if @save_game == true
 			save_game
+
 		else
-			puts "You lost! The word was #{@the_word}! Good luck next time!"
-			save_game
+			if @won == true
+				puts "You won! The word was #{@the_word}! Well done!"
+			else
+				puts "You lost! The word was #{@the_word}! Good luck next time!"
+			end
 		end
 	end
 	

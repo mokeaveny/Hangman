@@ -1,0 +1,1 @@
+{"the_word":"oversell","letter_spaces":[" _ "," _ "," e "," _ "," _ "," e "," _ "," _ "],"guessed_chars":["f","e"],"number_of_guesses":9}
