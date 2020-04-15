@@ -102,7 +102,7 @@ class Game
 		
 		load_serial = JSON.parse(File.read("saved_game_#{game_number}.txt"))
 
-		load_hash.each do |k, v|
+		load_serial.each do |k, v|
 			case k
 				when "the_word"
 					@the_word = v
@@ -119,9 +119,44 @@ class Game
 	end
 	
 	def play
-		pick_random_word
-		set_letter_spaces
+		game_choice = " "
+		valid = false
+		puts "Welcome to Hangman!"
+		
+		while (valid == false)
+			puts "Would you like to start a new game(N) or load a previous game(L)? "
+			game_choice = gets.chomp # Gets input
+			game_choice.downcase!
+			if game_choice == "n" || game_choice == "l"
+				valid = true
+			end
+		end
+
+		if game_choice == "n"
+			pick_random_word
+			set_letter_spaces
+			puts
+			puts "New Game Created!"
+		else
+			puts "What game would you like to load?"
+			directory = Dir.getwd # Gets the working directory
+			puts Dir.glob("#{directory}/*.{txt, TXT}").join(",\n") # Outputs all the current game files you can play.
+			valid_game = false
+			while valid_game == false
+				game_to_load = gets.chomp
+				if File.exists?("#{directory}/saved_game_#{game_to_load}.txt") # If the file exists then the game is loaded by substituting the inpit into the string
+					valid_game = true
+					load_game(game_to_load)
+				else
+					puts "That isn't a valid game file! Try inputting a different game number:"
+				end
+			end
+		end
+
 		while (@number_of_guesses > 0) && (@won == false)
+			puts
+			puts "Current Game Number: #{@this_game_number}"
+			print "\n"
 			display_letter_spaces
 			print "\n" # Display a blank line
 			print "\n"# Display a blank line
