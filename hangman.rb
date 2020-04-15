@@ -16,13 +16,8 @@ class Game
 		@number_of_guesses = 10
 		@word_array = dict
 		@the_word = ""
-		pick_random_word
-		puts @the_word
 		@letter_spaces = []
-		set_letter_spaces
-		print @letter_spaces
-		print "\n"
-		turn
+		@won = false
 	end
 
 	def pick_random_word
@@ -31,40 +26,70 @@ class Game
 
 	def set_letter_spaces
 		word_length = @the_word.length
-
 		for i in 1..word_length
 			@letter_spaces.append("_ ")
 		end
+	end
+
+	def display_letter_spaces
+		the_letter_spaces = @letter_spaces.join
+		print the_letter_spaces
 	end
 	
 	def turn
 		valid_letter = false
 		alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
 		while valid_letter == false
-			puts "Guess a letter: "
+			print "Guess a letter: "
 			letter = gets.chomp
 			letter.downcase!
 			if alphabet.include?(letter)
 				valid_letter = true
+			else
+				puts "That isn't a valid letter!"
 			end
 		end
-		puts letter
+
 		if @the_word.include?(letter)
-			puts "The letter is included within the hangman word!"
-			letter_index = []
+			puts "The letter is #{letter} is included within the hangman word!"
 			word_length = @the_word.length
 			for i in 0...word_length
 				if @the_word[i] == letter
-					letter_index.append(i) # Appends the position in the hangman word at which the letter guessed occured
+					@letter_spaces[i] = letter
 				end
 			end
-			puts letter_index
+
 		else
 			puts "The letter #{letter} is not included within the word!"
+			@number_of_guesses -= 1
 		end
 	end
+
+	def check_won
+		if @letter_spaces.all? { |letter| letter != "_ " } # If all of the letter_spaces are not blank then return true
+			@won = true
+		end
+	end
+	
+	def play
+		pick_random_word # Picks the word for the player to guess
+		set_letter_spaces # Sets the blank letter spaces to let them know how long the word is
+		while (@number_of_guesses > 0) && (@won == false)
+			display_letter_spaces
+			print "\n"
+			print "\n"
+			turn
+			check_won 
+		end
 		
+		if @won == true
+			puts "You won! The word was #{@the_word}! Well done!"
+		else
+			puts "You lost! The word was #{@the_word}! Good luck next time!"
+		end
+	end
+	
 end
 
 new_game = Game.new(get_dict)
-puts new_game
+new_game.play
