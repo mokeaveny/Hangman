@@ -1,3 +1,5 @@
+require "json"
+
 def get_dict
 	words = []
 	File.open("5desk.txt", "r") do |file|
@@ -17,7 +19,9 @@ class Game
 		@word_array = dict
 		@the_word = ""
 		@letter_spaces = []
+		@guessed_chars = []
 		@won = false
+		@this_game_number = rand 5
 	end
 
 	def pick_random_word
@@ -27,7 +31,7 @@ class Game
 	def set_letter_spaces
 		word_length = @the_word.length
 		for i in 1..word_length
-			@letter_spaces.append("_ ")
+			@letter_spaces.append(" _ ")
 		end
 	end
 
@@ -55,27 +59,73 @@ class Game
 			word_length = @the_word.length
 			for i in 0...word_length
 				if @the_word[i] == letter
-					@letter_spaces[i] = letter
+					@letter_spaces[i] = " " + letter + " "
 				end
 			end
+			@guessed_chars.append(letter)
 
 		else
 			puts "The letter #{letter} is not included within the word!"
+			@guessed_chars.append(letter)
 			@number_of_guesses -= 1
 		end
 	end
 
+	def display_guessed_chars
+		print "Guesed characters: [" + @guessed_chars.join(" ")	+ "]"
+	end
+
 	def check_won
-		if @letter_spaces.all? { |letter| letter != "_ " } # If all of the letter_spaces are not blank then return true
+		if @letter_spaces.all? { |letter| letter != " _ " } # If all of the letter_spaces are not blank then return true
 			@won = true
+		end
+	end
+
+	def save_serial(the_word, letter_spaces, guessed_chars, number_of_guesses) # Creates a symbol for every attribute
+		save_serial = Hash.new
+		save_serial[:the_word] = the_word
+		save_serial[:letter_spaces] = letter_spaces
+		save_serial[:guessed_chars] = guessed_chars
+		save_serial[:number_of_guesses] = number_of_guesses
+		return save_serial
+	end
+
+	def save_game
+		save = save_serial(@the_word, @letter_spaces, @guessed_chars, @number_of_guesses) # Assigns a hash that contains symbols for every attribute to the variable
+		File.open("saved_game_#{@this_game_number}.txt", "w") do |file| 
+			file.write save.to_json # Saves the symbols to the file using json. Imported at the top as you can see.
+		end
+	end
+			
+	def load_game(game_number) # Function that allows you to load your game. Haven't tried it yet.
+		load_serial = Hash.new
+		
+		load_serial = JSON.parse(File.read("saved_game_#{game_number}.txt"))
+
+		load_hash.each do |k, v|
+			case k
+				when "the_word"
+					@the_word = v
+				when "letter_spaces"
+					@letter_spaces = v
+				when "guessed_chars"
+					@guessed_chars = v
+				when "number_of_guesses"
+					@number_of_guesses = v
+				else
+					puts "There was an error loading your file. Creating new game."
+			end
 		end
 	end
 	
 	def play
-		pick_random_word # Picks the word for the player to guess
-		set_letter_spaces # Sets the blank letter spaces to let them know how long the word is
+		pick_random_word
+		set_letter_spaces
 		while (@number_of_guesses > 0) && (@won == false)
 			display_letter_spaces
+			print "\n" # Display a blank line
+			print "\n"# Display a blank line
+			display_guessed_chars
 			print "\n"
 			print "\n"
 			turn
@@ -84,8 +134,10 @@ class Game
 		
 		if @won == true
 			puts "You won! The word was #{@the_word}! Well done!"
+			save_game
 		else
 			puts "You lost! The word was #{@the_word}! Good luck next time!"
+			save_game
 		end
 	end
 	

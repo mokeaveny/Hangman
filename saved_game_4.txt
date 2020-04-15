@@ -1,0 +1,1 @@
+{"the_word":"complete","letter_spaces":[" _ "," o "," m "," p "," _ "," e "," _ "," e "],"guessed_chars":["f","h","w","e","m","n","o","p","a","q","r","g","h","v"],"number_of_guesses":0}
